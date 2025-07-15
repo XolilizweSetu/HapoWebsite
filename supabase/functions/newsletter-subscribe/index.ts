@@ -101,7 +101,7 @@ Deno.serve(async (req: Request) => {
     // Send admin notification email
     try {
       const adminNotificationData = {
-        to_email: 'setu@hapogroup.co.za',
+        to_email: 'admin@hapogroup.co.za',
         subscriber_email: email,
         subscription_type: isNewSubscriber ? 'New Subscription' : 'Reactivated Subscription',
         timestamp: new Date().toLocaleString('en-ZA', {
@@ -124,9 +124,9 @@ Deno.serve(async (req: Request) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          service_id: 'service_8qqqqsh',
-          template_id: 'template_ppp8h3g',
-          user_id: 'rGTJsRmAd8RERcbht',
+          service_id: 'service_8tnpp8e',
+          template_id: 'template_gph0dwl',
+          user_id: 'Txq4l3HisplFnFjK8',
           template_params: adminNotificationData,
         }),
       });

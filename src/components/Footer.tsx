@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <img src="/hpologo3.png" alt="Hapo Logo" className="h-12 w-auto mb-4" />
+            <img src="/hapoLogo2.png" alt="Hapo Logo" className="h-12 w-auto mb-4" />
             <p className="text-gray-400 mb-4">
               Leading provider of digital display solutions and innovative visual technologies.
             </p>

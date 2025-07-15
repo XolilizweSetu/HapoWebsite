@@ -92,8 +92,8 @@ The Hapo Group Team`,
           };
 
           await emailjs.send(
-            'service_8qqqqsh',
-            'template_lb419zc', // ✅ Correct template for subscriber
+            'service_8tnpp8e',
+            'template_yh0vylp', // ✅ Correct template for subscriber
             subscriberTemplateParams
           );
 
@@ -102,10 +102,10 @@ The Hapo Group Team`,
 
         // ✅ Send admin notification
         const adminTemplateParams = {
-          to_email: 'setu@hapogroup.co.za',
+          to_email: 'admin@hapogroup.co.za',
           subject: 'New Newsletter Subscription - Admin Notification',
           user_name: 'Admin',
-          user_email: 'setu@hapogroup.co.za',
+          user_email: 'admin@hapogroup.co.za',
           message: `New newsletter subscription received from: ${email}
 
 Subscription Details:
@@ -122,8 +122,8 @@ Admin Dashboard: ${window.location.origin}/blog`,
         };
 
         await emailjs.send(
-          'service_8qqqqsh',
-          'template_ppp8h3g', // ✅ Correct template for admin
+          'service_8tnpp8e',
+          'template_gph0dwl', // ✅ Correct template for admin
           adminTemplateParams
         );
 

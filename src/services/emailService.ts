@@ -22,7 +22,7 @@ export const sendEmail = async (data: EmailData): Promise<boolean> => {
       console.log('✅ EmailJS library found');
       
       // Initialize EmailJS with your public key
-      emailjs.init('rGTJsRmAd8RERcbht');
+      emailjs.init('Txq4l3HisplFnFjK8');
       console.log('✅ EmailJS initialized with public key');
       
       const templateParams = {
@@ -43,13 +43,13 @@ export const sendEmail = async (data: EmailData): Promise<boolean> => {
 
       // Send email using your service and template
       const response = await emailjs.send(
-        'service_8qqqqsh', // Your service ID
-        'template_ppp8h3g', // Your template ID
+        'service_8tnpp8e', // Your service ID
+        'template_gph0dwl', // Your template ID
         templateParams
       );
 
       console.log('✅ Email sent successfully:', response);
-      console.log('📬 Email should arrive at: setu@hapogroup.co.za');
+      console.log('📬 Email should arrive at: admin@hapogroup.co.za');
       return true;
     } else {
       console.error('❌ EmailJS not available on window object');

@@ -8,11 +8,16 @@ import toast from 'react-hot-toast';
 export default function CreatePostForm() {
   const { categories, fetchCategories } = useBlogStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    excerpt: string;
+    categoryId: string;
+    imageFile: File | null;
+  }>({
     title: '',
     excerpt: '',
     categoryId: '',
-    imageFile: null as File | null
+    imageFile: null
   });
   const [imagePreview, setImagePreview] = useState<string>('');
 
@@ -23,24 +28,23 @@ export default function CreatePostForm() {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         toast.error('Please select a valid image file');
         return;
       }
 
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Image size must be less than 5MB');
         return;
       }
 
       setFormData(prev => ({ ...prev, imageFile: file }));
-      
-      // Create preview
+
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
+        if (e.target?.result) {
+          setImagePreview(e.target.result as string);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -48,18 +52,17 @@ export default function CreatePostForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate required fields
+
     if (!formData.title.trim()) {
       toast.error('Please enter a title');
       return;
     }
-    
+
     if (!formData.excerpt.trim()) {
       toast.error('Please enter an excerpt');
       return;
     }
-    
+
     if (!formData.categoryId) {
       toast.error('Please select a category');
       return;
@@ -70,7 +73,6 @@ export default function CreatePostForm() {
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    // Reset form after successful submission
     setFormData({
       title: '',
       excerpt: '',
@@ -97,7 +99,6 @@ export default function CreatePostForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Title */}
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                 Article Title *
@@ -113,7 +114,6 @@ export default function CreatePostForm() {
               />
             </div>
 
-            {/* Category */}
             <div>
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
                 Category *
@@ -135,7 +135,6 @@ export default function CreatePostForm() {
             </div>
           </div>
 
-          {/* Excerpt */}
           <div>
             <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-2">
               Article Description (Excerpt) *
@@ -151,7 +150,6 @@ export default function CreatePostForm() {
             />
           </div>
 
-          {/* Feature Image */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Feature Image (Optional)
@@ -160,7 +158,7 @@ export default function CreatePostForm() {
               <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200">
                 <PhotoIcon className="w-5 h-5 text-gray-500" />
                 <span className="text-sm text-gray-700">
-                  {formData.imageFile ? formData.imageFile.name : 'Choose Image'}
+                  {formData.imageFile?.name || 'Choose Image'}
                 </span>
                 <input
                   type="file"
@@ -169,7 +167,7 @@ export default function CreatePostForm() {
                   className="hidden"
                 />
               </label>
-              
+
               {imagePreview && (
                 <div className="relative">
                   <img
@@ -195,7 +193,6 @@ export default function CreatePostForm() {
             </p>
           </div>
 
-          {/* Submit Button */}
           <div className="flex justify-end">
             <button
               type="submit"

@@ -123,16 +123,16 @@ export default function Chatbot() {
   const handleQuickReply = (reply: QuickReply) => {
     setMessages(prev => [...prev, { text: reply.title, isUser: true }]);
     setCurrentStep(reply.next);
-    
+
     const nextMessage = chatFlow[reply.next];
-    if (nextMessage) {
+    if (typeof nextMessage !== 'undefined') {
       simulateTyping(nextMessage);
     }
   };
 
   const sendEmailNotification = async (requestType: string, info: UserInfo) => {
     setEmailStatus('Sending...');
-    
+
     try {
       const emailData = {
         request_type: requestType,
@@ -148,9 +148,9 @@ export default function Chatbot() {
       };
 
       console.log('Attempting to send email with data:', emailData);
-      
+
       const success = await sendEmail(emailData);
-      
+
       if (success) {
         setEmailStatus('✅ Email sent successfully!');
         console.log('Email sent successfully to setu@hapogroup.co.za');
@@ -163,7 +163,6 @@ export default function Chatbot() {
       console.error('Email error:', error);
     }
 
-    // Clear status after 5 seconds
     setTimeout(() => setEmailStatus(''), 5000);
   };
 
@@ -171,14 +170,14 @@ export default function Chatbot() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const values: Record<string, string> = {};
-    
+
     formData.forEach((value, key) => {
       values[key] = value.toString();
     });
 
     const updatedUserInfo = { ...userInfo, ...values };
     setUserInfo(updatedUserInfo);
-    
+
     setMessages(prev => [
       ...prev,
       ...Object.entries(values).map(([_, value]) => ({ text: value, isUser: true }))
@@ -191,17 +190,13 @@ export default function Chatbot() {
         quickReplies: [{ title: "Schedule a Consultation", next: "schedule_consultation" }]
       });
     } else if (currentStep === 'request_quote') {
-      // Send email for quote request
       await sendEmailNotification('Quote Request', updatedUserInfo);
-      
       simulateTyping({
         text: "✅ Got it! Our team will get back to you within 24 hours. We've also sent your details to our team.",
         isUser: false
       });
     } else if (currentStep === 'talk_to_human') {
-      // Send email for human support request
       await sendEmailNotification('Human Support Request', updatedUserInfo);
-      
       simulateTyping({
         text: "Thank you for providing your information. A specialist will contact you shortly! We've notified our team.",
         isUser: false
@@ -328,7 +323,6 @@ export default function Chatbot() {
             </div>
 
             <div className="border-t p-4">
-              {/* Email Status Display */}
               {emailStatus && (
                 <div className={`mb-3 p-2 rounded text-sm ${
                   emailStatus.includes('✅') 
@@ -343,7 +337,7 @@ export default function Chatbot() {
 
               {messages[messages.length - 1]?.inputFields && (
                 <form onSubmit={handleInputSubmit} className="space-y-3">
-                  {messages[messages.length - 1].inputFields.map((field, index) => (
+                  {messages[messages.length - 1].inputFields!.map((field, index) => (
                     <input
                       key={index}
                       type={field.field === 'email' ? 'email' : 'text'}

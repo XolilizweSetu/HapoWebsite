@@ -13,7 +13,7 @@ interface BlogPostModalProps {
     title: string;
     excerpt: string;
     categoryId: string;
-    imageFile?: File;
+    imageFile?: File | null;
   };
 }
 
@@ -30,8 +30,8 @@ export default function BlogPostModal({ isOpen, onClose, initialData }: BlogPost
 
   const calculateReadTime = (content: string): number => {
     const wordsPerMinute = 200;
-    const textContent = content.replace(/<[^>]*>/g, ''); // Remove HTML tags
-    const wordCount = textContent.split(/\s+/).filter(word => word.length > 0).length;
+    const plainText = content.replace(/<[^>]+>/g, ''); // Remove HTML tags
+    const wordCount = plainText.trim().split(/\s+/).length;
     return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
   };
 
@@ -42,20 +42,20 @@ export default function BlogPostModal({ isOpen, onClose, initialData }: BlogPost
     }
 
     setIsSubmitting(true);
-    
+
     try {
       let imageUrl = '';
-      
-      // Upload image if provided
+
+      // Upload the image if it exists
       if (initialData.imageFile) {
         toast.loading('Uploading image...');
         const uploadedUrl = await uploadImage(initialData.imageFile);
+        toast.dismiss();
+
         if (uploadedUrl) {
           imageUrl = uploadedUrl;
-          toast.dismiss();
           toast.success('Image uploaded successfully');
         } else {
-          toast.dismiss();
           toast.error('Failed to upload image');
           setIsSubmitting(false);
           return;
@@ -63,23 +63,22 @@ export default function BlogPostModal({ isOpen, onClose, initialData }: BlogPost
       }
 
       const postData: CreatePostData = {
-        title: initialData.title,
-        excerpt: initialData.excerpt,
-        content,
-        image_url: imageUrl || null,
-        category_id: initialData.categoryId || null,
+        title: initialData.title.trim(),
+        excerpt: initialData.excerpt.trim(),
+        content: content.trim(),
+        image_url: imageUrl || undefined,
+        category_id: initialData.categoryId || undefined,
         read_time: calculateReadTime(content),
-        published: true
+        published: true,
       };
 
       console.log('Creating post with data:', postData);
 
       const result = await createPost(postData);
-      
+
       if (result) {
         toast.success('Blog post published successfully!');
-        onClose();
-        setContent('');
+        handleClose();
       } else {
         toast.error('Failed to publish blog post');
       }
@@ -117,7 +116,7 @@ export default function BlogPostModal({ isOpen, onClose, initialData }: BlogPost
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">Write Your Article</h2>
-                {initialData && (
+                {initialData?.title && (
                   <p className="text-gray-600 mt-1">{initialData.title}</p>
                 )}
               </div>

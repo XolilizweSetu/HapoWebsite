@@ -21,18 +21,22 @@ try {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Test connection on initialization
-supabase.from('posts').select('count', { count: 'exact', head: true })
-  .then(({ error }) => {
+// ✅ Test connection using async/await to avoid PromiseLike<void> error
+(async () => {
+  try {
+    const { error } = await supabase
+      .from('posts')
+      .select('count', { count: 'exact', head: true });
+
     if (error) {
       console.error('Supabase connection test failed:', error);
     } else {
       console.log('Supabase connection test successful');
     }
-  })
-  .catch((error) => {
-    console.error('Supabase connection test error:', error);
-  });
+  } catch (err) {
+    console.error('Supabase connection test error:', err);
+  }
+})();
 
 // Database types
 interface Category {

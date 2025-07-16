@@ -1,57 +1,32 @@
-import { corsHeaders } from '../_shared/cors.ts';
+// supabase/functions/newsletter-subscribe/index.ts
 
-interface SubscribeRequest {
-  email: string;
-}
+import { createClient } from '@supabase/supabase-js';
 
-Deno.serve(async (req: Request) => {
-  // Handle CORS preflight requests
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json',
+};
+
+export async function handler(req, res) {
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: corsHeaders,
-    });
+    return res.status(200).set(corsHeaders).send('');
   }
 
   try {
-    // Rate limiting check (simple implementation)
-    const clientIP = req.headers.get('x-forwarded-for') || 'unknown';
-    
-    if (req.method !== 'POST') {
-      return new Response(
-        JSON.stringify({ error: 'Method not allowed' }),
-        {
-          status: 405,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+    const { email } = req.body;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).set(corsHeaders).json({ error: 'Invalid email format' });
     }
 
-    const { email }: SubscribeRequest = await req.json();
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
-    // Validate email format
-    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    if (!email || !emailRegex.test(email)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid email format' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    const { createClient } = await import('npm:@supabase/supabase-js@2');
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Generate verification token
     const verificationToken = crypto.randomUUID();
 
-    // Check if email already exists
     const { data: existingSubscriber } = await supabase
       .from('newsletter_subscribers')
       .select('*')
@@ -62,15 +37,8 @@ Deno.serve(async (req: Request) => {
 
     if (existingSubscriber) {
       if (existingSubscriber.subscription_status && existingSubscriber.verified) {
-        return new Response(
-          JSON.stringify({ message: 'Email already subscribed' }),
-          {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
+        return res.status(200).set(corsHeaders).json({ message: 'Email already subscribed' });
       } else {
-        // Reactivate subscription and update verification token
         const { error } = await supabase
           .from('newsletter_subscribers')
           .update({
@@ -81,10 +49,8 @@ Deno.serve(async (req: Request) => {
           .eq('email', email);
 
         if (error) throw error;
-        isNewSubscriber = false; // Reactivated subscriber
       }
     } else {
-      // Insert new subscriber
       const { error } = await supabase
         .from('newsletter_subscribers')
         .insert({
@@ -94,84 +60,68 @@ Deno.serve(async (req: Request) => {
           verified: false,
         });
 
-        if (error) throw error;
-        isNewSubscriber = true;
+      if (error) throw error;
+      isNewSubscriber = true;
     }
 
-    // Send admin notification email
-    try {
-      const adminNotificationData = {
-        to_email: 'admin@hapogroup.co.za',
-        subscriber_email: email,
-        subscription_type: isNewSubscriber ? 'New Subscription' : 'Reactivated Subscription',
-        timestamp: new Date().toLocaleString('en-ZA', {
-          timeZone: 'Africa/Johannesburg',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        }),
-        verification_status: 'Pending Verification',
-        admin_dashboard_url: `${req.headers.get('origin')}/blog`,
-      };
+    const timestamp = new Date().toLocaleString('en-ZA', {
+      timeZone: 'Africa/Johannesburg',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
 
-      // Send admin notification via EmailJS
-      const emailJSResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          service_id: 'service_8tnpp8e',
-          template_id: 'template_gph0dwl',
-          user_id: 'Txq4l3HisplFnFjK8',
-          template_params: adminNotificationData,
-        }),
-      });
-
-      if (!emailJSResponse.ok) {
-        console.error('Failed to send admin notification email:', await emailJSResponse.text());
-      } else {
-        console.log('Admin notification email sent successfully');
-      }
-    } catch (emailError) {
-      console.error('Error sending admin notification:', emailError);
-      // Don't fail the subscription if email notification fails
-    }
-
-    // Send verification email to subscriber (optional - you can implement this later)
-    const emailData = {
-      to_email: email,
-      verification_token: verificationToken,
-      verification_url: `${req.headers.get('origin')}/verify-email?token=${verificationToken}`,
-      timestamp: new Date().toISOString(),
+    const adminParams = {
+      to_email: 'admin@hapogroup.co.za',
+      subscriber_email: email,
+      subscription_type: isNewSubscriber ? 'New Subscription' : 'Reactivated Subscription',
+      timestamp,
+      verification_status: 'Pending Verification',
+      admin_dashboard_url: `${req.headers.origin || 'https://hapogroup.co.za'}/blog`,
     };
 
-    // Here you would integrate with EmailJS or your email service for user verification
-    // For now, we'll return success with the verification token for testing
-    
-    return new Response(
-      JSON.stringify({
-        message: 'Subscription successful! Please check your email to verify.',
-        verification_token: verificationToken, // Remove in production
+    await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id: 'service_8tnpp8e',
+        template_id: 'template_gph0dwl',
+        user_id: 'Txq4l3HisplFnFjK8',
+        template_params: adminParams,
       }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    });
+
+    const verificationUrl = `${req.headers.origin || 'https://hapogroup.co.za'}/verify-email?token=${verificationToken}`;
+
+    const subscriberParams = {
+      email,
+      name: email.split('@')[0],
+      title: 'Please verify your email subscription - Hapo Group',
+      message: `Thank you for subscribing to the Hapo Group newsletter!\n\nClick the link below to verify:\n\n${verificationUrl}`,
+      time: timestamp,
+    };
+
+    await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id: 'service_8tnpp8e',
+        template_id: 'template_yh0vylp',
+        user_id: 'Txq4l3HisplFnFjK8',
+        template_params: subscriberParams,
+      }),
+    });
+
+    return res.status(200).set(corsHeaders).json({
+      message: 'Subscription successful. Please check your email to verify.',
+      verification_token: verificationToken, // Optional: remove in production
+    });
 
   } catch (error) {
-    console.error('Newsletter subscription error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    console.error('Error:', error);
+    return res.status(500).set(corsHeaders).json({ error: 'Internal Server Error' });
   }
-});
+}

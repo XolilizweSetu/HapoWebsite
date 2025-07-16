@@ -87,9 +87,7 @@ export default function Chatbot() {
     installation_support: {
       text: "Our expert team handles everything from site surveys to installation and maintenance. Where is your business located?",
       isUser: false,
-      inputFields: [
-        { title: "📍 Your location", field: "location" }
-      ]
+      inputFields: [{ title: "📍 Your location", field: "location" }]
     },
     request_quote: {
       text: "Let's get you a personalized quote! Please provide the following:",
@@ -123,7 +121,7 @@ export default function Chatbot() {
   const handleQuickReply = (reply: QuickReply) => {
     setMessages(prev => [...prev, { text: reply.title, isUser: true }]);
     setCurrentStep(reply.next);
-    
+
     const nextMessage = chatFlow[reply.next];
     if (nextMessage) {
       simulateTyping(nextMessage);
@@ -132,7 +130,6 @@ export default function Chatbot() {
 
   const sendEmailNotification = async (requestType: string, info: UserInfo) => {
     setEmailStatus('Sending...');
-    
     try {
       const emailData = {
         request_type: requestType,
@@ -147,23 +144,16 @@ export default function Chatbot() {
         to_email: 'admin@hapogroup.co.za'
       };
 
-      console.log('Attempting to send email with data:', emailData);
-      
       const success = await sendEmail(emailData);
-      
       if (success) {
         setEmailStatus('✅ Email sent successfully!');
-        console.log('Email sent successfully to setu@hapogroup.co.za');
       } else {
         setEmailStatus('❌ Failed to send email. Please try again.');
-        console.error('Email sending failed');
       }
     } catch (error) {
       setEmailStatus('❌ Error sending email. Please try again.');
-      console.error('Email error:', error);
     }
 
-    // Clear status after 5 seconds
     setTimeout(() => setEmailStatus(''), 5000);
   };
 
@@ -171,14 +161,14 @@ export default function Chatbot() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const values: Record<string, string> = {};
-    
+
     formData.forEach((value, key) => {
       values[key] = value.toString();
     });
 
     const updatedUserInfo = { ...userInfo, ...values };
     setUserInfo(updatedUserInfo);
-    
+
     setMessages(prev => [
       ...prev,
       ...Object.entries(values).map(([_, value]) => ({ text: value, isUser: true }))
@@ -191,17 +181,13 @@ export default function Chatbot() {
         quickReplies: [{ title: "Schedule a Consultation", next: "schedule_consultation" }]
       });
     } else if (currentStep === 'request_quote') {
-      // Send email for quote request
       await sendEmailNotification('Quote Request', updatedUserInfo);
-      
       simulateTyping({
         text: "✅ Got it! Our team will get back to you within 24 hours. We've also sent your details to our team.",
         isUser: false
       });
     } else if (currentStep === 'talk_to_human') {
-      // Send email for human support request
       await sendEmailNotification('Human Support Request', updatedUserInfo);
-      
       simulateTyping({
         text: "Thank you for providing your information. A specialist will contact you shortly! We've notified our team.",
         isUser: false
@@ -218,6 +204,8 @@ export default function Chatbot() {
     setIsTyping(false);
     setEmailStatus('');
   };
+
+  const lastMessage = messages[messages.length - 1];
 
   return (
     <>
@@ -238,11 +226,7 @@ export default function Chatbot() {
           >
             <div className="flex justify-between items-center p-4 border-b">
               <div className="flex items-center gap-2">
-                <img
-                  src="/HapoPrimary.jpg"
-                  alt="Hapo"
-                  className="w-8 h-8 rounded-full object-cover"
-                />
+                <img src="/HapoPrimary.jpg" alt="Hapo" className="w-8 h-8 rounded-full object-cover" />
                 <h3 className="text-lg font-semibold">Chat with Hapo</h3>
               </div>
               <button
@@ -258,24 +242,13 @@ export default function Chatbot() {
 
             <div className="h-96 overflow-y-auto p-4 space-y-4">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-                >
+                <div key={index} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
                   {!message.isUser && (
-                    <img
-                      src="/HapoPrimary.jpg"
-                      alt="Hapo"
-                      className="w-8 h-8 rounded-full object-cover mr-2"
-                    />
+                    <img src="/HapoPrimary.jpg" alt="Hapo" className="w-8 h-8 rounded-full object-cover mr-2" />
                   )}
-                  <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
-                      message.isUser
-                        ? 'bg-primary text-white'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
+                  <div className={`max-w-[80%] rounded-lg p-3 ${
+                    message.isUser ? 'bg-primary text-white' : 'bg-gray-100 text-gray-800'
+                  }`}>
                     <p className="whitespace-pre-line">{message.text}</p>
                     {message.quickReplies && (
                       <div className="mt-3 space-y-2">
@@ -295,32 +268,17 @@ export default function Chatbot() {
               ))}
               {isTyping && (
                 <div className="flex items-center gap-2">
-                  <img
-                    src="/HapoPrimary.jpg"
-                    alt="Hapo"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
+                  <img src="/HapoPrimary.jpg" alt="Hapo" className="w-8 h-8 rounded-full object-cover" />
                   <div className="bg-gray-100 rounded-lg p-3">
-                    <motion.div 
-                      className="flex gap-1"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                    >
-                      <motion.span
-                        className="w-2 h-2 bg-gray-500 rounded-full"
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 0.5, repeat: Infinity, delay: 0 }}
-                      />
-                      <motion.span
-                        className="w-2 h-2 bg-gray-500 rounded-full"
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 0.5, repeat: Infinity, delay: 0.2 }}
-                      />
-                      <motion.span
-                        className="w-2 h-2 bg-gray-500 rounded-full"
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 0.5, repeat: Infinity, delay: 0.4 }}
-                      />
+                    <motion.div className="flex gap-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                      {[0, 0.2, 0.4].map((delay, i) => (
+                        <motion.span
+                          key={i}
+                          className="w-2 h-2 bg-gray-500 rounded-full"
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 0.5, repeat: Infinity, delay }}
+                        />
+                      ))}
                     </motion.div>
                   </div>
                 </div>
@@ -328,11 +286,10 @@ export default function Chatbot() {
             </div>
 
             <div className="border-t p-4">
-              {/* Email Status Display */}
               {emailStatus && (
                 <div className={`mb-3 p-2 rounded text-sm ${
-                  emailStatus.includes('✅') 
-                    ? 'bg-green-100 text-green-800' 
+                  emailStatus.includes('✅')
+                    ? 'bg-green-100 text-green-800'
                     : emailStatus.includes('❌')
                     ? 'bg-red-100 text-red-800'
                     : 'bg-blue-100 text-blue-800'
@@ -341,9 +298,9 @@ export default function Chatbot() {
                 </div>
               )}
 
-              {messages[messages.length - 1]?.inputFields && (
+              {Array.isArray(lastMessage?.inputFields) && lastMessage.inputFields.length > 0 && (
                 <form onSubmit={handleInputSubmit} className="space-y-3">
-                  {messages[messages.length - 1].inputFields.map((field, index) => (
+                  {lastMessage.inputFields.map((field, index) => (
                     <input
                       key={index}
                       type={field.field === 'email' ? 'email' : 'text'}

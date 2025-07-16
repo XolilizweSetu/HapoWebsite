@@ -155,10 +155,18 @@ export default function Footer() {
               © 2025 Hapo Group. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors duration-300">
+              <Link 
+                to="/privacy" 
+                onClick={handleQuickLinkClick}
+                className="text-gray-400 hover:text-white text-sm transition-colors duration-300"
+              >
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors duration-300">
+              <Link 
+                to="/terms" 
+                onClick={handleQuickLinkClick}
+                className="text-gray-400 hover:text-white text-sm transition-colors duration-300"
+              >
                 Terms of Service
               </Link>
             </div>

@@ -58,7 +58,7 @@ class NewsletterService {
 
       if (typeof window !== 'undefined' && (window as any).emailjs) {
         const emailjs = (window as any).emailjs;
-        emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
+        emailjs.init('Txq4l3HisplFnFjK8');
 
         const timestamp = new Date().toLocaleString('en-ZA', {
           timeZone: 'Africa/Johannesburg',

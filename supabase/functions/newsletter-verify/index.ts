@@ -1,89 +1,79 @@
-import { corsHeaders } from '../_shared/cors.ts';
+import { Handler } from '@netlify/functions';
+import { createClient } from '@supabase/supabase-js';
+import { corsHeaders } from '../_shared/cors';
 
 interface VerifyRequest {
   token: string;
 }
 
-Deno.serve(async (req: Request) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
+const handler: Handler = async (event, context) => {
+  // Handle CORS preflight request
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
       headers: corsHeaders,
-    });
+      body: '',
+    };
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
   }
 
   try {
-    if (req.method !== 'POST') {
-      return new Response(
-        JSON.stringify({ error: 'Method not allowed' }),
-        {
-          status: 405,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const { token }: VerifyRequest = await req.json();
+    const { token }: VerifyRequest = JSON.parse(event.body || '{}');
 
     if (!token) {
-      return new Response(
-        JSON.stringify({ error: 'Verification token required' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      return {
+        statusCode: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Verification token required' }),
+      };
     }
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    const { createClient } = await import('npm:@supabase/supabase-js@2');
+    const supabaseUrl = process.env.SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify the token and update subscriber
     const { data, error } = await supabase
       .from('newsletter_subscribers')
       .update({
         verified: true,
-        verification_token: null, // Clear the token after verification
+        verification_token: null,
       })
-      .eq('verification_token', token)
+      .match({ verification_token: token })
       .select('email')
       .single();
 
     if (error || !data) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid or expired verification token' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      return {
+        statusCode: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Invalid or expired verification token' }),
+      };
     }
 
-    return new Response(
-      JSON.stringify({
+    return {
+      statusCode: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         message: 'Email verified successfully!',
         email: data.email,
       }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    };
 
-  } catch (error) {
-    console.error('Email verification error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+  } catch (err) {
+    console.error('Email verification error:', err);
+    return {
+      statusCode: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Internal server error' }),
+    };
   }
-});
+};
+
+export { handler };

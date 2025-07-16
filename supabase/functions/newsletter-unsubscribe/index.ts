@@ -1,94 +1,77 @@
-import { corsHeaders } from '../_shared/cors.ts';
+import { Handler } from '@netlify/functions';
+import { createClient } from '@supabase/supabase-js';
+import { corsHeaders } from '../_shared/cors';
 
 interface UnsubscribeRequest {
   email?: string;
   token?: string;
 }
 
-Deno.serve(async (req: Request) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
+const handler: Handler = async (event, context) => {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
       headers: corsHeaders,
-    });
+      body: '',
+    };
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
   }
 
   try {
-    if (req.method !== 'POST') {
-      return new Response(
-        JSON.stringify({ error: 'Method not allowed' }),
-        {
-          status: 405,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const { email, token }: UnsubscribeRequest = await req.json();
+    const { email, token }: UnsubscribeRequest = JSON.parse(event.body || '{}');
 
     if (!email && !token) {
-      return new Response(
-        JSON.stringify({ error: 'Email or token required' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      return {
+        statusCode: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Email or token required' }),
+      };
     }
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    const { createClient } = await import('npm:@supabase/supabase-js@2');
+    const supabaseUrl = process.env.SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Build query based on provided parameters
-    let query = supabase.from('newsletter_subscribers');
-    
-    if (token) {
-      query = query.eq('verification_token', token);
-    } else if (email) {
-      query = query.eq('email', email);
-    }
-
-    // Update subscription status
-    const { data, error } = await query
+    const { data, error } = await supabase
+      .from('newsletter_subscribers')
       .update({ subscription_status: false })
+      .match(token ? { verification_token: token } : { email })
       .select('email')
       .single();
 
-    if (error) {
-      return new Response(
-        JSON.stringify({ error: 'Subscriber not found' }),
-        {
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+    if (error || !data) {
+      return {
+        statusCode: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Subscriber not found' }),
+      };
     }
 
-    return new Response(
-      JSON.stringify({
+    return {
+      statusCode: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         message: 'Successfully unsubscribed from newsletter',
         email: data.email,
       }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    };
 
-  } catch (error) {
-    console.error('Newsletter unsubscribe error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+  } catch (err) {
+    console.error('Unsubscribe error:', err);
+    return {
+      statusCode: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Internal server error' }),
+    };
   }
-});
+};
+
+export { handler };

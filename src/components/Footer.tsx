@@ -2,6 +2,16 @@ import { Link } from 'react-router-dom';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
 
 export default function Footer() {
+  const handleQuickLinkClick = () => {
+    // Scroll to top when navigating to quick links
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSolutionClick = (sectionId: string) => {
+    // Scroll to top first, then after navigation, scroll to specific section
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -45,22 +55,38 @@ export default function Footer() {
             <h3 className="text-lg font-bold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-gray-400 hover:text-white transition-colors duration-300">
+                <Link 
+                  to="/about" 
+                  onClick={handleQuickLinkClick}
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/solutions" className="text-gray-400 hover:text-white transition-colors duration-300">
+                <Link 
+                  to="/solutions" 
+                  onClick={handleQuickLinkClick}
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
                   Solutions
                 </Link>
               </li>
               <li>
-                <Link to="/services" className="text-gray-400 hover:text-white transition-colors duration-300">
+                <Link 
+                  to="/services" 
+                  onClick={handleQuickLinkClick}
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
                   Services
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-gray-400 hover:text-white transition-colors duration-300">
+                <Link 
+                  to="/blog" 
+                  onClick={handleQuickLinkClick}
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
                   Blog
                 </Link>
               </li>
@@ -72,22 +98,40 @@ export default function Footer() {
             <h3 className="text-lg font-bold mb-4">Solutions</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/solutions" className="text-gray-400 hover:text-white transition-colors duration-300">
+                <Link 
+                  to="/solutions" 
+                  onClick={() => handleSolutionClick('indoor-displays')}
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
                   Indoor Displays
                 </Link>
               </li>
               <li>
-                <Link to="/solutions" className="text-gray-400 hover:text-white transition-colors duration-300">
+                <Link 
+                  to="/solutions" 
+                  onClick={() => handleSolutionClick('outdoor-displays')}
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
                   Outdoor Displays
                 </Link>
               </li>
               <li>
-                <Link to="/solutions" className="text-gray-400 hover:text-white transition-colors duration-300">
+                <Link 
+                  to="/solutions"
+                  state={{ scrollTo: 'ai-solutions' }}
+                  onClick={() => handleSolutionClick('ai-solutions')}
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
                   AI Solutions
                 </Link>
               </li>
               <li>
-                <Link to="/solutions" className="text-gray-400 hover:text-white transition-colors duration-300">
+                <Link 
+                  to="/solutions"
+                  state={{ scrollTo: 'smart-signage' }}
+                  onClick={() => handleSolutionClick('smart-signage')}
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
                   Digital Signage
                 </Link>
               </li>

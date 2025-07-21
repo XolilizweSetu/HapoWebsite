@@ -65,8 +65,7 @@ export default function Chatbot() {
       isUser: false,
       quickReplies: [
         { title: "See Indoor Gallery", next: "indoor_gallery" },
-        { title: "Get Indoor Quote", next: "request_quote" },
-        { title: "Schedule Demo", next: "schedule_demo" }
+        { title: "Get Indoor Quote", next: "request_quote" }
         
       ]
     },
@@ -103,7 +102,6 @@ export default function Chatbot() {
       text: "🖼️ Indoor LED Display Gallery:\n\n🏪 Retail Success Stories:\n• 40% increase in customer engagement\n• Dynamic product showcases\n• Real-time promotional updates\n\n🏢 Corporate Installations:\n• Impressive lobby displays\n• Interactive meeting rooms\n• Employee communication hubs\n\nWould you like to see specific case studies?",
       isUser: false,
       quickReplies: [
-        { title: "Schedule Site Visit", next: "site_visit" },
         { title: "Get Indoor Quote", next: "request_quote" }
       ]
     },
@@ -135,7 +133,7 @@ export default function Chatbot() {
         { title: "Project description", field: "question" }
       ]
     },*/
-    installation_support: {
+    /*installation_support: {
       text: "🔧 Professional Installation & Support:\n\n📋 Our comprehensive service includes:\n\n✅ Site survey & planning\n✅ Professional installation\n✅ System configuration & testing\n✅ Staff training\n✅ Ongoing maintenance\n✅ 24/7 technical support\n✅ Remote monitoring\n✅ Warranty coverage\n\nWhat type of support do you need?",
       isUser: false,
       quickReplies: [
@@ -207,7 +205,7 @@ export default function Chatbot() {
         { title: "Project timeline", field: "installationTimeline" },
         { title: "Special requirements", field: "question" }
       ]
-    },
+    },*/
     ai_iot_solutions: {
       text: "🚀 Explore our innovative technology solutions designed to enhance your business operations and customer experience. Choose a category:",
       isUser: false,
@@ -356,13 +354,13 @@ export default function Chatbot() {
         { title: "Email for results", field: "email" }
       ]
     },
-    /*installation_support: {
+    installation_support: {
       text: "Our expert team handles everything from site surveys to installation and maintenance. Where is your business located?",
       isUser: false,
       inputFields: [
         { title: "📍 Your location", field: "location" }
       ]
-    },*/
+    },
     schedule_consultation: {
       text: "📅 Perfect! Let's schedule your consultation. Our local technician will assess your space and provide recommendations.",
       isUser: false,

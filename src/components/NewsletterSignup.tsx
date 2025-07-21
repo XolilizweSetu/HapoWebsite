@@ -43,15 +43,15 @@ export default function NewsletterSignup({
   };
 
   return (
-    <div className={`bg-white rounded-2xl shadow-lg p-8 ${className}`}>
+    <div className={`bg-white rounded-2xl shadow-lg p-6 sm:p-8 max-w-md mx-auto ${className}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div className="text-center mb-6">
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">{title}</h3>
-          <p className="text-gray-600">{description}</p>
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{title}</h3>
+          <p className="text-sm sm:text-base text-gray-600">{description}</p>
         </div>
 
         {status === 'success' ? (
@@ -73,13 +73,13 @@ export default function NewsletterSignup({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
-              <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base"
                 required
                 disabled={status === 'loading'}
               />
@@ -99,7 +99,7 @@ export default function NewsletterSignup({
             <button
               type="submit"
               disabled={status === 'loading' || !email}
-              className="w-full bg-primary text-white py-3 px-6 rounded-lg hover:bg-secondary transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full bg-primary text-white py-3 px-6 rounded-lg hover:bg-secondary transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-base"
             >
               {status === 'loading' ? (
                 <>

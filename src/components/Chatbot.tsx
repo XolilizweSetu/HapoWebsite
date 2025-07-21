@@ -65,7 +65,8 @@ export default function Chatbot() {
       isUser: false,
       quickReplies: [
         { title: "See Indoor Gallery", next: "indoor_gallery" },
-        { title: "Get Indoor Quote", next: "request_quote" }
+        { title: "Get Indoor Quote", next: "request_quote" },
+        { title: "Schedule Demo", next: "schedule_demo" }
         
       ]
     },
@@ -102,6 +103,7 @@ export default function Chatbot() {
       text: "🖼️ Indoor LED Display Gallery:\n\n🏪 Retail Success Stories:\n• 40% increase in customer engagement\n• Dynamic product showcases\n• Real-time promotional updates\n\n🏢 Corporate Installations:\n• Impressive lobby displays\n• Interactive meeting rooms\n• Employee communication hubs\n\nWould you like to see specific case studies?",
       isUser: false,
       quickReplies: [
+        { title: "Schedule Site Visit", next: "site_visit" },
         { title: "Get Indoor Quote", next: "request_quote" }
       ]
     },
@@ -529,7 +531,7 @@ export default function Chatbot() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-20 right-4 w-96 bg-white rounded-lg shadow-xl"
+            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:w-96 bg-white rounded-lg shadow-xl max-w-sm sm:max-w-none mx-auto sm:mx-0"
           >
             <div className="flex justify-between items-center p-4 border-b">
               <div className="flex items-center gap-2">
@@ -538,7 +540,7 @@ export default function Chatbot() {
                   alt="Hapo"
                   className="w-8 h-8 rounded-full object-cover"
                 />
-                <h3 className="text-lg font-semibold">Chat with Hapo</h3>
+                <h3 className="text-base sm:text-lg font-semibold">Chat with Hapo</h3>
               </div>
               <button
                 onClick={() => {
@@ -551,7 +553,7 @@ export default function Chatbot() {
               </button>
             </div>
 
-            <div className="h-96 overflow-y-auto p-4 space-y-4">
+            <div className="h-80 sm:h-96 overflow-y-auto p-4 space-y-4">
               {messages.map((message, index) => (
                 <div
                   key={index}
@@ -571,14 +573,14 @@ export default function Chatbot() {
                         : 'bg-gray-100 text-gray-800'
                     }`}
                   >
-                    <p className="whitespace-pre-line">{message.text}</p>
+                    <p className="whitespace-pre-line text-sm sm:text-base">{message.text}</p>
                     {message.quickReplies && (
                       <div className="mt-3 space-y-2">
                         {message.quickReplies.map((reply, replyIndex) => (
                           <button
                             key={replyIndex}
                             onClick={() => handleQuickReply(reply)}
-                            className="block w-full text-left p-2 rounded bg-white hover:bg-gray-50 transition-colors duration-200"
+                            className="block w-full text-left p-2 rounded bg-white hover:bg-gray-50 transition-colors duration-200 text-sm"
                           >
                             {reply.title}
                           </button>
@@ -636,29 +638,26 @@ export default function Chatbot() {
                 </div>
               )}
 
-{/* Render input fields if the last message has them */}
-{messages[messages.length - 1]?.inputFields && (
-  <form onSubmit={handleInputSubmit} className="space-y-3">
-    {messages[messages.length - 1].inputFields!.map((field, index) => (
-      <input
-        key={index}
-        type={field.field === 'email' ? 'email' : 'text'}
-        name={field.field}
-        placeholder={field.title}
-        required
-        className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-      />
-    ))}
-
-    <button
-      type="submit"
-      className="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-colors duration-300"
-    >
-      Submit
-    </button>
-  </form>
-)}
-
+              {messages[messages.length - 1]?.inputFields && (
+                <form onSubmit={handleInputSubmit} className="space-y-3">
+                  {messages[messages.length - 1].inputFields?.map((field, index) => (
+                    <input
+                      key={index}
+                      type={field.field === 'email' ? 'email' : 'text'}
+                      name={field.field}
+                      placeholder={field.title}
+                      required
+                      className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    />
+                  ))}
+                  <button
+                    type="submit"
+                    className="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-colors duration-300 text-sm"
+                  >
+                    Send
+                  </button>
+                </form>
+              )}
             </div>
           </motion.div>
         )}

@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { EnvelopeIcon, CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import {
+  EnvelopeIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from '@heroicons/react/24/outline';
 import { newsletterService } from '../services/newsletterService';
 
 interface NewsletterSignupProps {
@@ -9,10 +13,10 @@ interface NewsletterSignupProps {
   description?: string;
 }
 
-export default function NewsletterSignup({ 
-  className = '', 
-  title = "Stay Updated",
-  description = "Subscribe to our newsletter for the latest insights and updates."
+export default function NewsletterSignup({
+  className = '',
+  title = 'Stay Updated',
+  description = 'Subscribe to our newsletter for the latest insights and updates.',
 }: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -20,7 +24,7 @@ export default function NewsletterSignup({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) return;
 
     setStatus('loading');
@@ -33,7 +37,7 @@ export default function NewsletterSignup({
       setEmail('');
     } catch (error) {
       setStatus('error');
-      setMessage(error instanceof Error ? error.message : 'Failed to subscribe');
+      setMessage((error as Error)?.message || 'Failed to subscribe');
     }
   };
 

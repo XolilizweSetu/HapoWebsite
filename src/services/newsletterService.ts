@@ -25,8 +25,7 @@ class NewsletterService {
   private baseUrl: string;
 
   constructor() {
-    // Make sure the base URL ends without a trailing slash
-    this.baseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') + '/functions/v1';
+    this.baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
   }
 
   private async makeRequest(endpoint: string, options: RequestInit = {}) {
@@ -43,15 +42,13 @@ class NewsletterService {
     });
 
     if (!response.ok) {
-      // Try to parse error json for clearer message
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP ${response.status}`);
+      const error = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(error.error || `HTTP ${response.status}`);
     }
 
     return response.json();
   }
 
-  // Subscribe function improved
   async subscribe(email: string): Promise<SubscribeResponse> {
     try {
       const response = await this.makeRequest('/newsletter-subscribe', {
@@ -59,10 +56,9 @@ class NewsletterService {
         body: JSON.stringify({ email }),
       });
 
-      // Send emails only if EmailJS is loaded in the browser
       if (typeof window !== 'undefined' && (window as any).emailjs) {
         const emailjs = (window as any).emailjs;
-        emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'Txq4l3HisplFnFjK8');
+        emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
 
         const timestamp = new Date().toLocaleString('en-ZA', {
           timeZone: 'Africa/Johannesburg',
@@ -71,35 +67,53 @@ class NewsletterService {
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
-          second: '2-digit',
+          second: '2-digit'
         });
 
-        // Send verification email to subscriber if token present
+        // ✅ Send verification email to subscriber
         if (response.verification_token) {
           const verificationUrl = `${window.location.origin}/verify-email?token=${response.verification_token}`;
 
           const subscriberTemplateParams = {
-            email,
-            name: email.split('@')[0],
-            title: 'Please verify your email subscription - Hapo Group',
-            message: `Thank you for subscribing to the Hapo Group newsletter!\n\nPlease click the link below to verify your email address and complete your subscription:\n\n${verificationUrl}\n\nIf you didn't subscribe to our newsletter, please ignore this email.\n\nBest regards,\nThe Hapo Group Team`,
-            time: timestamp,
+            email, // matches {{email}} in EmailJS
+            name: email.split('@')[0], // matches {{name}}
+            title: 'Please verify your email subscription - Hapo Group', // matches {{title}}
+            message: `Thank you for subscribing to the Hapo Group newsletter!
+
+Please click the link below to verify your email address and complete your subscription:
+
+${verificationUrl}
+
+If you didn't subscribe to our newsletter, please ignore this email.
+
+Best regards,
+The Hapo Group Team`,
+            time: timestamp, // matches {{time}}
           };
 
           await emailjs.send(
-            import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_8tnpp8e',
-            import.meta.env.VITE_EMAILJS_TEMPLATE_ID_SUBSCRIBER || 'template_yh0vylp',
+            'service_8qqqqsh',
+            'template_lb419zc', // ✅ Correct template for subscriber
             subscriberTemplateParams
           );
+
+          console.log('✅ Verification email sent to subscriber:', email);
         }
 
-        // Send admin notification email
+        // ✅ Send admin notification
         const adminTemplateParams = {
-          to_email: import.meta.env.VITE_NEWSLETTER_FROM_EMAIL || 'admin@hapogroup.co.za',
+          to_email: 'setu@hapogroup.co.za',
           subject: 'New Newsletter Subscription - Admin Notification',
           user_name: 'Admin',
-          user_email: import.meta.env.VITE_NEWSLETTER_FROM_EMAIL || 'admin@hapogroup.co.za',
-          message: `New newsletter subscription received from: ${email}\n\nSubscription Details:\n- Email: ${email}\n- Status: Pending Verification\n- Timestamp: ${timestamp}\n\nAdmin Dashboard: ${window.location.origin}/blog`,
+          user_email: 'setu@hapogroup.co.za',
+          message: `New newsletter subscription received from: ${email}
+
+Subscription Details:
+- Email: ${email}
+- Status: Pending Verification
+- Timestamp: ${timestamp}
+
+Admin Dashboard: ${window.location.origin}/blog`,
           subscriber_email: email,
           subscription_type: 'New Newsletter Subscription',
           timestamp,
@@ -108,16 +122,18 @@ class NewsletterService {
         };
 
         await emailjs.send(
-          import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_8tnpp8e',
-          import.meta.env.VITE_EMAILJS_TEMPLATE_ID_ADMIN || 'template_gph0dwl',
+          'service_8qqqqsh',
+          'template_ppp8h3g', // ✅ Correct template for admin
           adminTemplateParams
         );
+
+        console.log('✅ Admin notification sent for subscriber:', email);
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Newsletter subscription error:', error);
-      throw new Error(error.message || 'Failed to subscribe');
+      throw error;
     }
   }
 
@@ -136,19 +152,16 @@ class NewsletterService {
   }
 
   async sendBroadcast(data: BroadcastRequest): Promise<any> {
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
 
-    if (sessionError || !session) {
+    if (!session) {
       throw new Error('Authentication required');
     }
 
     return this.makeRequest('/newsletter-broadcast', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${session.access_token}`,
+        'Authorization': `Bearer ${session.access_token}`,
       },
       body: JSON.stringify(data),
     });
@@ -171,12 +184,14 @@ class NewsletterService {
 
     if (error) throw error;
 
-    return {
+    const stats = {
       total: data?.length || 0,
-      active: data?.filter((s) => s.subscription_status && s.verified).length || 0,
-      pending: data?.filter((s) => s.subscription_status && !s.verified).length || 0,
-      unsubscribed: data?.filter((s) => !s.subscription_status).length || 0,
+      active: data?.filter(s => s.subscription_status && s.verified).length || 0,
+      pending: data?.filter(s => s.subscription_status && !s.verified).length || 0,
+      unsubscribed: data?.filter(s => !s.subscription_status).length || 0,
     };
+
+    return stats;
   }
 }
 

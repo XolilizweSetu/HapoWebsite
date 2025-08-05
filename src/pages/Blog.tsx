@@ -1,11 +1,4 @@
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { useBlogStore } from '../stores/blogStore';
-import CreatePostForm from '../components/blog/CreatePostForm';
-import AuthModal from '../components/blog/AuthModal';
-import NewsletterSignup from '../components/NewsletterSignup';
-import NewsletterDashboard from '../components/admin/NewsletterDashboard';
-import { Toaster } from 'react-hot-toast';
+// ...imports remain the same...
 
 export default function Blog() {
   const {
@@ -88,10 +81,6 @@ export default function Blog() {
         )}
 
         {isAuthenticated && <CreatePostForm />}
-
-        <div className="mb-12">
-          <NewsletterSignup />
-        </div>
 
         {loading && (
           <div className="flex justify-center items-center py-12">
@@ -191,49 +180,67 @@ export default function Blog() {
             <p className="text-gray-600">Check back soon for the latest insights and updates!</p>
           </div>
         )}
+      </div>
 
-        {/* Social Links Section */}
-        <div className="mt-16 text-center">
-          <h2 className="text-2xl font-bold mb-6">Follow us on social media</h2>
-          <div className="flex justify-center space-x-6">
-            {/* Instagram */}
-            <a
-              href="https://www.instagram.com/hapo_group/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
-            >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07..." />
-              </svg>
-              Instagram
-            </a>
+      {/* Newsletter & Social Links Section */}
+      <div className="bg-black text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
+            <p className="text-lg mb-8">Subscribe to our newsletter for the latest insights and updates.</p>
 
-            {/* LinkedIn */}
-            <a
-              href="https://www.linkedin.com/company/hapo-group"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
-            >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.447 20.452h-3.554v-5.569..." />
-              </svg>
-              LinkedIn
-            </a>
+            {/* NewsletterSignup Form at the Bottom */}
+            <div className="max-w-md mx-auto mb-10">
+              <NewsletterSignup
+                className="bg-gray-800 border border-gray-700"
+                title=""
+                description=""
+              />
+            </div>
 
-            {/* TikTok */}
-            <a
-              href="https://www.tiktok.com/@hapogroup"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-black border border-white text-white rounded-lg hover:bg-white hover:text-black transition-colors duration-300"
-            >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 256 256">
-                <path d="M224 80a80 80 0 0 1-48-16v88a64 64 0 1 1-64-64c1.5 0 3 .1 4.4.3V56.2a88.1 88.1 0 1 0 107.6 86.3V80Z" />
-              </svg>
-              TikTok
-            </a>
+            <div className="mt-8">
+              <p className="text-lg mb-4">Follow us on social media:</p>
+              <div className="flex flex-wrap justify-center gap-4">
+                {/* Instagram */}
+                <a
+                  href="https://www.instagram.com/hapo_group/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07..." />
+                  </svg>
+                  Instagram
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href="https://www.linkedin.com/company/hapo-group"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569..." />
+                  </svg>
+                  LinkedIn
+                </a>
+
+                {/* TikTok */}
+                <a
+                  href="https://www.tiktok.com/@hapogroup"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-4 py-2 bg-black border border-white text-white rounded-lg hover:bg-white hover:text-black transition-colors duration-300"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M224 80a80 80 0 0 1-48-16v88a64 64 0 1 1-64-64c1.5 0 3 .1 4.4.3V56.2a88.1 88.1 0 1 0 107.6 86.3V80Z" />
+                  </svg>
+                  TikTok
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

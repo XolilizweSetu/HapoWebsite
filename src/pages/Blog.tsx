@@ -1,4 +1,11 @@
-// ...imports remain the same...
+import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { useBlogStore } from '../stores/blogStore';
+import CreatePostForm from '../components/blog/CreatePostForm';
+import AuthModal from '../components/blog/AuthModal';
+import NewsletterSignup from '../components/NewsletterSignup';
+import NewsletterDashboard from '../components/admin/NewsletterDashboard';
+import { Toaster } from 'react-hot-toast';
 
 export default function Blog() {
   const {
@@ -81,6 +88,10 @@ export default function Blog() {
         )}
 
         {isAuthenticated && <CreatePostForm />}
+
+        <div className="mb-12">
+          <NewsletterSignup />
+        </div>
 
         {loading && (
           <div className="flex justify-center items-center py-12">
@@ -182,15 +193,14 @@ export default function Blog() {
         )}
       </div>
 
-      {/* Newsletter & Social Links Section */}
+      {/* Newsletter Section */}
       <div className="bg-black text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
             <p className="text-lg mb-8">Subscribe to our newsletter for the latest insights and updates.</p>
 
-            {/* NewsletterSignup Form at the Bottom */}
-            <div className="max-w-md mx-auto mb-10">
+            <div className="max-w-md mx-auto">
               <NewsletterSignup
                 className="bg-gray-800 border border-gray-700"
                 title=""
@@ -200,7 +210,7 @@ export default function Blog() {
 
             <div className="mt-8">
               <p className="text-lg mb-4">Follow us on social media:</p>
-              <div className="flex flex-wrap justify-center gap-4">
+              <div className="flex justify-center space-x-6">
                 {/* Instagram */}
                 <a
                   href="https://www.instagram.com/hapo_group/"

@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { EyeIcon, MusicalNoteIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
+import CountUp from 'react-countup';
+import { useInView } from 'react-intersection-observer';
 
 export default function About() {
   const team = [
@@ -54,9 +56,9 @@ export default function About() {
     { name: "Steers", logo: "/steers1.PNG" },
     { name: "Krispy Kreme", logo: "/krispy kreme copy.PNG" },
     { name: "Adidas", logo: "/adidas1.PNG" },
-    { name: "Adidas", logo: "/engen.PNG" },
-    { name: "Adidas", logo: "/hoka.PNG" },
-    { name: "Adidas", logo: "/total.PNG" },
+    { name: "Engen", logo: "/engen.PNG" },
+    { name: "Hoka", logo: "/hoka.PNG" },
+    { name: "Total", logo: "/total.PNG" },
     { name: "McDonald's", logo: "/mcDonalds.PNG" }
   ];
 
@@ -152,22 +154,31 @@ export default function About() {
         </div>
       </div>
 
-      {/* Stats Section */}
+      {/* Stats Section with Animated Numbers */}
       <div className="bg-gradient-to-br from-primary to-secondary text-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-4xl font-bold mb-2">{stat.number}</div>
-                <div className="opacity-80">{stat.label}</div>
-              </motion.div>
-            ))}
+            {stats.map((stat, index) => {
+              const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.5 });
+              const numberValue = parseInt(stat.number.replace(/\D/g, '')); // extract digits
+              const suffix = stat.number.includes('%') ? '%' : stat.number.includes('+') ? '+' : '';
+
+              return (
+                <motion.div
+                  key={index}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="text-center"
+                >
+                  <div className="text-4xl font-bold mb-2">
+                    {inView ? <CountUp end={numberValue} duration={2} suffix={suffix} /> : '0'}
+                  </div>
+                  <div className="opacity-80">{stat.label}</div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -205,45 +216,6 @@ export default function About() {
           </div>
         </div>
       </div>
-
-      {/* Team Section */}
-      {/*<div className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl font-bold mb-4 text-primary">Our Leadership Team</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Meet the innovators and strategists driving our mission forward.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {team.map((member, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="text-center bg-gray-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-              >
-                <div className="mb-4">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-48 h-48 rounded-full mx-auto object-cover"
-                  />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{member.name}</h3>
-                <p className="text-gray-600">{member.role}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>*/}
     </div>
   );
 }

@@ -72,13 +72,34 @@ export default function Home() {
 
   return (
     <div className="bg-white text-base">
-      <div className="relative h-[calc(100vh-64px)] bg-white flex items-center overflow-hidden" style={{ backgroundImage: 'url("/imgbackground copy.PNG")', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+      <div
+        className="relative h-[calc(100vh-64px)] flex items-center overflow-hidden"
+        style={{
+          backgroundImage: 'url("/imgbackground copy.PNG")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        {/* Light white overlay */}
+        <div className="absolute inset-0 bg-white bg-opacity-30"></div>
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-white max-w-3xl">
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6">Transform Your Visual Experience</h1>
-            <p className="text-lg sm:text-xl mb-8">Discover cutting-edge digital display solutions that elevate your brand and captivate your audience.</p>
-            <Link to="/solutions" className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg bg-primary text-white rounded-2xl hover:bg-secondary transition-all duration-300 transform hover:scale-105">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-black max-w-3xl"
+          >
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
+              Transform Your Visual Experience
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl mb-8">
+              Discover cutting-edge digital display solutions that elevate your brand and captivate your audience.
+            </p>
+            <Link
+              to="/solutions"
+              className="inline-flex items-center px-5 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg bg-primary text-white rounded-2xl hover:bg-secondary transition-all duration-300 transform hover:scale-105"
+            >
               Explore Solutions
               <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Link>

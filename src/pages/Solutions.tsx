@@ -108,9 +108,7 @@ export default function Solutions() {
           "Transportation hubs - Ticketing and schedule information",
           "Shopping malls - Directory and promotional displays",
           "Corporate lobbies - Visitor management and information"
-        ],
-        pricing: "Starting from $3,500 for basic models, $8,500 for advanced payment-enabled kiosks",
-        timeline: "2-3 weeks for standard configurations, 4-6 weeks for custom designs"
+        ]
       }
     },
     {
@@ -153,9 +151,7 @@ export default function Solutions() {
           "Bars and pubs - Dynamic drink specials and promotions",
           "Bakeries - Fresh daily specials and seasonal items",
           "Food trucks - Compact, portable menu solutions"
-        ],
-        pricing: "Starting from $1,200 per display, complete systems from $2,800",
-        timeline: "1-2 weeks for installation, immediate content updates"
+        ]
       }
     },
     {
@@ -198,9 +194,7 @@ export default function Solutions() {
           "Hotels and resorts - Facility and amenity location",
           "Convention centers - Event and booth navigation",
           "Government buildings - Department and service location"
-        ],
-        pricing: "Starting from $4,500 per kiosk, enterprise solutions from $12,000",
-        timeline: "3-4 weeks for mapping and setup, 1 week for installation"
+        ]
       }
     },
     {
@@ -243,9 +237,7 @@ export default function Solutions() {
           "Sporting goods - Equipment specifications and recommendations",
           "Furniture stores - Room visualization and measurements",
           "Grocery stores - Nutritional information and recipe suggestions"
-        ],
-        pricing: "Starting from $800 per display, integrated systems from $2,200",
-        timeline: "1-2 weeks for setup and integration"
+        ]
       }
     }
   ];
@@ -602,12 +594,6 @@ export default function Solutions() {
                               </div>
                             ))}
                           </div>
-                        </div>
-
-                        <div className="bg-gray-50 p-6 rounded-xl">
-                          <h4 className="font-bold text-lg mb-3">Investment & Timeline</h4>
-                          <p className="text-gray-700 mb-2"><strong>Pricing:</strong> {solution.detailedContent.pricing}</p>
-                          <p className="text-gray-700"><strong>Timeline:</strong> {solution.detailedContent.timeline}</p>
                         </div>
 
                         <div className="bg-gradient-to-r from-primary to-secondary text-white p-6 rounded-lg text-center">

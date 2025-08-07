@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatBubbleLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { sendEmail } from '../services/emailService';
 
 interface Message {
@@ -49,6 +51,15 @@ export default function Chatbot() {
   const [userInfo, setUserInfo] = useState<UserInfo>({});
   const [isTyping, setIsTyping] = useState(false);
   const [emailStatus, setEmailStatus] = useState('');
+  const location = useLocation();
+
+  // Auto-close chatbot when navigating to other pages
+  useEffect(() => {
+    if (isOpen) {
+      setIsOpen(false);
+      resetChat();
+    }
+  }, [location.pathname]);
 
   const chatFlow: Record<string, Message> = {
     hardware_solutions: {
@@ -372,9 +383,13 @@ export default function Chatbot() {
       ]
     },
     request_quote: {
-      text: "Let's get you a personalized quote! Please provide the following:",
+      text: "Let's get you a personalized quote! Please provide your details and requirements:",
       isUser: false,
       inputFields: [
+        { title: "👤 Your full name", field: "name" },
+        { title: "📧 Email address", field: "email" },
+        { title: "📞 Phone number", field: "phone" },
+        { title: "🏢 Company name", field: "company" },
         { title: "📍 Your location", field: "location" },
         { title: "🏢 Type of business", field: "businessType" },
         { title: "📦 Products/services you're interested in", field: "productsServices" },
@@ -531,9 +546,10 @@ export default function Chatbot() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:w-96 bg-white rounded-lg shadow-xl max-w-sm sm:max-w-none mx-auto sm:mx-0"
+            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:w-96 bg-white rounded-lg shadow-xl max-w-sm sm:max-w-none mx-auto sm:mx-0 h-[500px] flex flex-col"
           >
-            <div className="flex justify-between items-center p-4 border-b">
+            {/* Fixed Header */}
+            <div className="flex justify-between items-center p-4 border-b bg-white rounded-t-lg flex-shrink-0">
               <div className="flex items-center gap-2">
                 <img
                   src="/HapoPrimary.jpg"
@@ -547,13 +563,14 @@ export default function Chatbot() {
                   setIsOpen(false);
                   resetChat();
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 z-10 flex-shrink-0"
               >
                 <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="h-80 sm:h-96 overflow-y-auto p-4 space-y-4">
+            {/* Scrollable Messages Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((message, index) => (
                 <div
                   key={index}
@@ -624,7 +641,8 @@ export default function Chatbot() {
               )}
             </div>
 
-            <div className="border-t p-4">
+            {/* Fixed Footer */}
+            <div className="border-t p-4 bg-white rounded-b-lg flex-shrink-0">
               {/* Email Status Display */}
               {emailStatus && (
                 <div className={`mb-3 p-2 rounded text-sm ${

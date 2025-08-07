@@ -21,13 +21,13 @@ export default function Footer() {
               Leading provider of digital display solutions and innovative visual technologies.
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.linkedin.com/company/hapo-group" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
+              <a href="https://www.linkedin.com/company/hapo-technology/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
                 <FaLinkedin className="h-5 w-5 sm:h-6 sm:w-6" />
               </a>
-              <a href="https://www.instagram.com/hapo_group/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
+              <a href="https://instagram.com/hapo_technology/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
                 <FaInstagram className="h-5 w-5 sm:h-6 sm:w-6" />
               </a>
-              <a href="https://www.tiktok.com/@hapo_group" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
+              <a href="https://www.tiktok.com/@hapo_technology" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
                 <FaTiktok className="h-5 w-5 sm:h-6 sm:w-6" />
               </a>
             </div>

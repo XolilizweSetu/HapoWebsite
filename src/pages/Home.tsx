@@ -281,7 +281,14 @@ export default function Home() {
                 <MapPinIcon className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-2">Visit Us</h3>
-              <p className="text-gray-600">Cape Town, South Africa</p>
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=1+Bridgeway+Road,+Bridgeway+Precinct,+Century+City,+Cape+Town,+South+Africa"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-primary transition-colors duration-300 cursor-pointer"
+              >
+                1 Bridgeway Road, Bridgeway Precinct, Century City, Cape Town, South Africa
+              </a>
               <p className="text-gray-500 text-sm">Available for on-site consultations</p>
             </motion.div>
 
@@ -295,7 +302,12 @@ export default function Home() {
                 <PhoneIcon className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-2">Call Us</h3>
-              <p className="text-gray-600">+27 (0) 21 123-4567</p>
+              <a 
+                href="tel:+27211408375"
+                className="text-gray-600 hover:text-primary transition-colors duration-300 cursor-pointer"
+              >
+                +27 (0) 21 140-8375
+              </a>
               <p className="text-gray-500 text-sm">Mon - Fri: 8:00 AM - 5:00 PM</p>
             </motion.div>
 
@@ -309,7 +321,12 @@ export default function Home() {
                 <EnvelopeIcon className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-2">Email Us</h3>
-              <p className="text-gray-600">info@hapogroup.co.za</p>
+              <a 
+                href="mailto:admin@hapogroup.co.za"
+                className="text-gray-600 hover:text-primary transition-colors duration-300 cursor-pointer"
+              >
+                admin@hapogroup.co.za
+              </a>
               <p className="text-gray-500 text-sm">We respond within 24 hours</p>
             </motion.div>
           </div>
@@ -418,7 +435,7 @@ export default function Home() {
               <p className="text-lg mb-4">Follow us on social media:</p>
               <div className="flex justify-center space-x-6">
                 <a 
-                  href="https://www.instagram.com/hapo_group/" 
+                  href="https://instagram.com/hapo_technology/" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
@@ -429,7 +446,7 @@ export default function Home() {
                   Instagram
                 </a>
                 <a 
-                  href="https://www.linkedin.com/company/hapo-group" 
+                  href="https://www.linkedin.com/company/hapo-technology/" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
@@ -440,7 +457,7 @@ export default function Home() {
                   LinkedIn
                 </a>
                 <a
-                  href="https://www.tiktok.com/@hapogroup"
+                  href="https://www.tiktok.com/@hapo_technology/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-4 py-2 bg-black border border-white text-white rounded-lg hover:bg-white hover:text-black transition-colors duration-300"

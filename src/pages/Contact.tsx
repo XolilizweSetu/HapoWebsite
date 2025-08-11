@@ -161,7 +161,32 @@ export default function Contact() {
                   <info.icon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-gray-900">{info.title}</h3>
-                <p className="text-primary font-semibold mb-2">{info.details}</p>
+                {info.title === 'Visit Us' ? (
+                  <a 
+                    href="https://www.google.com/maps/search/?api=1&query=1+Bridgeway+Road,+Bridgeway+Precinct,+Century+City,+Cape+Town,+South+Africa"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary font-semibold mb-2 hover:text-secondary transition-colors duration-300 cursor-pointer block"
+                  >
+                    {info.details}
+                  </a>
+                ) : info.title === 'Call Us' ? (
+                  <a 
+                    href="tel:+27211408375"
+                    className="text-primary font-semibold mb-2 hover:text-secondary transition-colors duration-300 cursor-pointer block"
+                  >
+                    {info.details}
+                  </a>
+                ) : info.title === 'Email Us' ? (
+                  <a 
+                    href="mailto:admin@hapogroup.co.za"
+                    className="text-primary font-semibold mb-2 hover:text-secondary transition-colors duration-300 cursor-pointer block"
+                  >
+                    {info.details}
+                  </a>
+                ) : (
+                  <p className="text-primary font-semibold mb-2">{info.details}</p>
+                )}
                 <p className="text-gray-600 text-sm">{info.subDetails}</p>
               </motion.div>
             ))}

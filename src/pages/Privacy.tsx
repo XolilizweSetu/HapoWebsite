@@ -1,6 +1,11 @@
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 export default function Privacy() {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Hero Section */}

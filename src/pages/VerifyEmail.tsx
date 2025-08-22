@@ -23,12 +23,15 @@ export default function VerifyEmail() {
   }, [searchParams]);
 
   const verifyEmail = async (token: string) => {
+    console.log('Attempting to verify token:', token);
     try {
       const response = await newsletterService.verifyEmail(token);
+      console.log('Verification response:', response);
       setStatus('success');
       setMessage(response.message);
       setEmail(response.email);
     } catch (error) {
+      console.error('Verification error:', error);
       setStatus('error');
       setMessage(error instanceof Error ? error.message : 'Verification failed');
     }

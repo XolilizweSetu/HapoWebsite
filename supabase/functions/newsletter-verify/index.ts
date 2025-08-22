@@ -1,79 +1,65 @@
-import { Handler } from '@netlify/functions';
-import { createClient } from '@supabase/supabase-js';
-import { corsHeaders } from '../_shared/cors';
+import express from "express";
+import { createClient } from "@supabase/supabase-js";
 
-interface VerifyRequest {
-  token: string;
-}
+const app = express();
+app.use(express.json());
 
-const handler: Handler = async (event, context) => {
-  // Handle CORS preflight request
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: '',
-    };
-  }
+// Setup Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
-  }
-
+app.post("/verify", async (req, res) => {
   try {
-    const { token }: VerifyRequest = JSON.parse(event.body || '{}');
+    const { token } = req.body;
 
     if (!token) {
-      return {
-        statusCode: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Verification token required' }),
-      };
+      return res.status(400).json({ error: "Verification token required" });
     }
 
-    const supabaseUrl = process.env.SUPABASE_URL!;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Lookup subscriber
+    const { data: subscriber, error: fetchError } = await supabase
+      .from("newsletter_subscribers")
+      .select("id, email, verified, subscription_status")
+      .eq("verification_token", token)
+      .single();
 
-    const { data, error } = await supabase
-      .from('newsletter_subscribers')
+    if (fetchError || !subscriber) {
+      return res.status(400).json({ error: "Invalid or expired verification token" });
+    }
+
+    if (subscriber.verified) {
+      return res.status(200).json({
+        message: "Email already verified!",
+        email: subscriber.email,
+      });
+    }
+
+    // Update subscriber
+    const { error: updateError } = await supabase
+      .from("newsletter_subscribers")
       .update({
         verified: true,
         verification_token: null,
+        subscription_status: "active",
+        last_updated: new Date().toISOString(),
       })
-      .match({ verification_token: token })
-      .select('email')
-      .single();
+      .eq("id", subscriber.id);
 
-    if (error || !data) {
-      return {
-        statusCode: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or expired verification token' }),
-      };
+    if (updateError) {
+      return res.status(500).json({ error: "Failed to verify email" });
     }
 
-    return {
-      statusCode: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: 'Email verified successfully!',
-        email: data.email,
-      }),
-    };
+    return res.status(200).json({
+      message: "Email verified successfully!",
+      email: subscriber.email,
+    });
 
   } catch (err) {
-    console.error('Email verification error:', err);
-    return {
-      statusCode: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Internal server error' }),
-    };
+    console.error("Email verification error:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
-export { handler };
+export default app;

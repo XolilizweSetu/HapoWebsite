@@ -1,110 +1,89 @@
-import express from 'express';
-import cors from 'cors';
-import fetch from 'node-fetch';
-import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
+import express from "express";
+import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto";
 
-dotenv.config();
+const router = express.Router();
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
+// Setup Supabase client
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-app.post('/api/newsletter-subscribe', async (req, res) => {
-  const { email } = req.body;
-
-  // Basic validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email || !emailRegex.test(email)) {
-    return res.status(400).json({ error: 'Invalid email format' });
-  }
-
-  const verificationToken = crypto.randomUUID();
-  let isNewSubscriber = false;
-
-  // Check if email already exists
-  const { data: existingSubscriber } = await supabase
-    .from('newsletter_subscribers')
-    .select('*')
-    .eq('email', email)
-    .single();
-
-  if (existingSubscriber) {
-    if (existingSubscriber.subscription_status && existingSubscriber.verified) {
-      return res.status(200).json({ message: 'Email already subscribed' });
-    } else {
-      const { error } = await supabase
-        .from('newsletter_subscribers')
-        .update({
-          subscription_status: true,
-          verification_token: verificationToken,
-          verified: false,
-        })
-        .eq('email', email);
-
-      if (error) return res.status(500).json({ error: error.message });
-    }
-  } else {
-    const { error } = await supabase
-      .from('newsletter_subscribers')
-      .insert({
-        email,
-        verification_token: verificationToken,
-        subscription_status: true,
-        verified: false,
-      });
-
-    if (error) return res.status(500).json({ error: error.message });
-    isNewSubscriber = true;
-  }
-
-  // Send admin email via EmailJS
+router.post("/subscribe", async (req, res) => {
   try {
-    const adminNotificationData = {
-      to_email: 'setu@hapogroup.co.za',
-      subscriber_email: email,
-      subscription_type: isNewSubscriber ? 'New Subscription' : 'Reactivated Subscription',
-      timestamp: new Date().toLocaleString('en-ZA', {
-        timeZone: 'Africa/Johannesburg',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      }),
-      verification_status: 'Pending Verification',
-      admin_dashboard_url: `https://your-site.com/blog`,
-    };
+    const { email } = req.body;
 
-    const emailJSResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        service_id: process.env.EMAILJS_SERVICE_ID,
-        template_id: process.env.EMAILJS_TEMPLATE_ID,
-        user_id: process.env.EMAILJS_USER_ID,
-        template_params: adminNotificationData,
-      }),
-    });
-
-    if (!emailJSResponse.ok) {
-      console.error(await emailJSResponse.text());
+    // Validate email
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!email || !emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
     }
-  } catch (e) {
-    console.error('Failed to send admin email:', e);
-  }
 
-  return res.status(200).json({
-    message: 'Subscription successful! Please check your email to verify.',
-    verification_token: verificationToken, // ⚠️ remove in production
-  });
+    // Generate verification token
+    const verificationToken = `verify_${Date.now()}_${crypto.randomUUID()}`;
+
+    // Lookup existing subscriber
+    const { data: existingSubscriber, error: fetchError } = await supabase
+      .from("newsletter_subscribers")
+      .select("*")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error("Database fetch error:", fetchError);
+      return res.status(500).json({ error: "Database lookup failed" });
+    }
+
+    if (existingSubscriber) {
+      if (
+        existingSubscriber.subscription_status === "active" &&
+        existingSubscriber.verified
+      ) {
+        return res.json({ message: "Email already subscribed" });
+      } else {
+        // Reactivate subscription
+        const { error: updateError } = await supabase
+          .from("newsletter_subscribers")
+          .update({
+            subscription_status: "pending",
+            verification_token: verificationToken,
+            verified: false,
+            last_updated: new Date().toISOString(),
+          })
+          .eq("email", email);
+
+        if (updateError) throw updateError;
+      }
+    } else {
+      // Insert new subscriber
+      const { error: insertError } = await supabase
+        .from("newsletter_subscribers")
+        .insert({
+          email,
+          verification_token: verificationToken,
+          subscription_status: "pending",
+          verified: false,
+        });
+
+      if (insertError) throw insertError;
+    }
+
+    // Build verification link
+    const verificationUrl = `${
+      req.headers.origin || "http://localhost:5173"
+    }/verify-email?token=${verificationToken}`;
+
+    console.log("Verification URL:", verificationUrl); // useful for dev
+    // TODO: send via EmailJS/SMTP here
+
+    return res.json({
+      message: "Subscription successful! Please check your email to verify.",
+    });
+  } catch (error) {
+    console.error("Subscribe error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`✅ Newsletter API running on http://localhost:${PORT}`));
+export default router;
